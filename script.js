@@ -116,4 +116,3 @@ function addFlashcard() {
 
 // Charge les flashcards au démarrage
 loadFlashcards();
-
