@@ -1,27 +1,28 @@
-// Remplace cette URL par celle de ton Google Sheet (voir Étape 4)
-const https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ04nBdjkzScQteaNMij4yAOdL1sBBS3uNbrraQ0bc90I4N1_2jS8iI5GO8rCo-jrB_FfKnrbZs66n/pubhtml?gid=0&single=true = "https://docs.google.com/spreadsheets/d/TON_ID_ICI/pub?output=json";
+// URL de ton script Google Apps
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbxYAZVc228RG4qdinTR1Y6UZT9LLiHne00a6OEEvhWHO2K0TYus818EsosATpCfrlg8/exec";
 
 let flashcards = [];
 let currentCardIndex = 0;
 let score = 0;
 let isQuestionSide = true;
 
-// Charge les flashcards depuis Google Sheets
+// Charge les flashcards depuis le script Google Apps
 async function loadFlashcards() {
     try {
         const response = await fetch(SHEET_URL);
         const data = await response.json();
-        const entries = data.feed.entry;
-        flashcards = entries.map(entry => ({
-            type: entry.gsx$type.$t,
-            contenu: entry.gsx$contenu.$t,
-            reponse: entry.gsx$réponse.$t,
-            lien: entry.gsx$lien.$t
+        flashcards = data.map(item => ({
+            type: item.Type,
+            contenu: item.Contenu,
+            reponse: item.Réponse,
+            lien: item.Lien,
+            categorie: item.Catégorie
         }));
+        console.log("Flashcards chargées :", flashcards);
         showCard();
     } catch (error) {
         console.error("Erreur de chargement :", error);
-        alert("Impossible de charger les flashcards. Vérifie l’URL du Google Sheet.");
+        alert("Erreur de chargement. Vérifie la console (F12) pour plus de détails.");
     }
 }
 
@@ -36,7 +37,7 @@ function showCard() {
         if (card.type === "image") {
             document.getElementById("flashcard").innerHTML = `
                 <div id="front">
-                    <img id="flashcard-image" src="${card.lien}" alt="${card.contenu}">
+                    <img id="flashcard-image" src="${card.lien}" alt="${card.contenu}" style="max-width: 100%; max-height: 300px;">
                 </div>
             `;
         } else {
@@ -82,7 +83,7 @@ function knowCard() {
     showCard();
 }
 
-// Je ne connais pas
+// Je ne connais pas la réponse
 function dontKnowCard() {
     score = 0;
     document.getElementById("score-value").textContent = score;
@@ -116,3 +117,4 @@ function addFlashcard() {
 
 // Charge les flashcards au démarrage
 loadFlashcards();
+
