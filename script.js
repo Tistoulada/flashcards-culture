@@ -1,5 +1,5 @@
 // Remplace cette URL par celle de ton Google Sheet (voir Étape 4)
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/TON_ID_ICI/pub?output=json";
+const https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ04nBdjkzScQteaNMij4yAOdL1sBBS3uNbrraQ0bc90I4N1_2jS8iI5GO8rCo-jrB_FfKnrbZs66n/pubhtml?gid=0&single=true = "https://docs.google.com/spreadsheets/d/TON_ID_ICI/pub?output=json";
 
 let flashcards = [];
 let currentCardIndex = 0;
