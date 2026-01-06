@@ -15,7 +15,7 @@ async function loadFlashcards() {
             type: item.Type,
             contenu: item.Contenu,
             reponse: item.Réponse,
-            lien: item.Lien,
+            lien: item["Lien (optionnel)"], // Note le nom exact de la colonne
             categorie: item.Catégorie
         }));
         console.log("Flashcards chargées :", flashcards);
@@ -34,7 +34,7 @@ function showCard() {
     }
     const card = flashcards[currentCardIndex];
     if (isQuestionSide) {
-        if (card.type === "image") {
+        if (card.type === "image" && card.lien) {
             document.getElementById("flashcard").innerHTML = `
                 <div id="front">
                     <img id="flashcard-image" src="${card.lien}" alt="${card.contenu}" style="max-width: 100%; max-height: 300px;">
@@ -52,6 +52,7 @@ function showCard() {
             <div id="back">
                 <h2>Réponse :</h2>
                 <p>${card.reponse}</p>
+                ${card.categorie ? `<p><em>Catégorie : ${card.categorie}</em></p>` : ''}
             </div>
         `;
     }
@@ -100,21 +101,24 @@ function addFlashcard() {
     const contenu = document.getElementById("new-contenu").value;
     const reponse = document.getElementById("new-reponse").value;
     const lien = document.getElementById("new-lien").value;
+    const categorie = document.getElementById("new-categorie").value; // Ajoute un champ "catégorie" dans ton HTML
 
     if (!contenu || !reponse) {
         alert("Veuillez remplir les champs 'Contenu' et 'Réponse' !");
         return;
     }
 
-    flashcards.push({ type, contenu, reponse, lien });
+    flashcards.push({ type, contenu, reponse, lien, categorie });
     alert("Flashcard ajoutée !");
 
     // Réinitialise le formulaire
     document.getElementById("new-contenu").value = "";
     document.getElementById("new-reponse").value = "";
     document.getElementById("new-lien").value = "";
+    document.getElementById("new-categorie").value = "";
 }
 
 // Charge les flashcards au démarrage
 loadFlashcards();
+
 
