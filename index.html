@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards Culture</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Flashcards Culture Générale</h1>
+    <div id="score">Score : <span id="score-value">0</span></div>
+    <div id="flashcard" onclick="flipCard()">
+        <div id="front">
+            <img id="flashcard-image" src="" alt="Contenu">
+            <p id="flashcard-question"></p>
+        </div>
+        <div id="back" style="display: none;">
+            <h2>Réponse :</h2>
+            <p id="flashcard-answer"></p>
+        </div>
+    </div>
+    <div id="controls">
+        <button onclick="knowCard()">Je connais !</button>
+        <button onclick="dontKnowCard()">Je ne connais pas</button>
+    </div>
+    <div id="add-form">
+        <h2>Ajouter une flashcard</h2>
+        <select id="new-type">
+            <option value="image">Image</option>
+            <option value="question">Question</option>
+        </select>
+        <input type="text" id="new-contenu" placeholder="Lien image ou question">
+        <input type="text" id="new-reponse" placeholder="Réponse courte (ex: Vinci)">
+        <input type="text" id="new-lien" placeholder="Lien image (si type=image)">
+        <button onclick="addFlashcard()">Ajouter</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
