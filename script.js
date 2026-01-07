@@ -1,10 +1,46 @@
 // URL de ton script Google Apps
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbxYAZVc228RG4qdinTR1Y6UZT9LLiHne00a6OEEvhWHO2K0TYus818EsosATpCfrlg8/exec";
+const SHEET_URL = "TU_REMPLACES_PAR_TON_URL_DE_SCRIPT";
 
+// Variables globales
 let flashcards = [];
 let currentCardIndex = 0;
 let score = 0;
-let isQuestionSide = true;
+let currentUser = null;
+let scores = JSON.parse(localStorage.getItem('scores')) || {};
+
+// Définir le pseudo de l'utilisateur
+function setPseudo() {
+    const pseudo = document.getElementById("pseudo-input").value.trim();
+    if (!pseudo) {
+        alert("Veuillez entrer un pseudo.");
+        return;
+    }
+    currentUser = pseudo;
+    document.getElementById("login-form").style.display = "none";
+    document.getElementById("game").style.display = "block";
+    updateScoreboard();
+    loadFlashcards();
+}
+
+// Mettre à jour le scoreboard
+function updateScoreboard() {
+    const scoreList = document.getElementById("score-list");
+    scoreList.innerHTML = "";
+    for (const user in scores) {
+        const li = document.createElement("li");
+        li.textContent = `${user}: ${scores[user]}`;
+        scoreList.appendChild(li);
+    }
+}
+
+// Mettre à jour le score
+function updateScore(points) {
+    if (!currentUser) return;
+    scores[currentUser] = (scores[currentUser] || 0) + points;
+    localStorage.setItem('scores', JSON.stringify(scores));
+    document.getElementById("score-value").textContent = scores[currentUser];
+    updateScoreboard();
+}
 
 // Charge les flashcards depuis le script Google Apps
 async function loadFlashcards() {
@@ -15,10 +51,8 @@ async function loadFlashcards() {
             type: item.Type,
             contenu: item.Contenu,
             reponse: item.Réponse,
-            lien: item["Lien (optionnel)"], // Note le nom exact de la colonne
             categorie: item.Catégorie
         }));
-        console.log("Flashcards chargées :", flashcards);
         showCard();
     } catch (error) {
         console.error("Erreur de chargement :", error);
@@ -33,92 +67,76 @@ function showCard() {
         return;
     }
     const card = flashcards[currentCardIndex];
-    if (isQuestionSide) {
-        if (card.type === "image" && card.lien) {
-            document.getElementById("flashcard").innerHTML = `
-                <div id="front">
-                    <img id="flashcard-image" src="${card.lien}" alt="${card.contenu}" style="max-width: 100%; max-height: 300px;">
-                </div>
-            `;
-        } else {
-            document.getElementById("flashcard").innerHTML = `
-                <div id="front" style="display: flex; justify-content: center; align-items: center;">
-                    <p>${card.contenu}</p>
-                </div>
-            `;
-        }
-    } else {
-        document.getElementById("flashcard").innerHTML = `
-            <div id="back">
-                <h2>Réponse :</h2>
-                <p>${card.reponse}</p>
-                ${card.categorie ? `<p><em>Catégorie : ${card.categorie}</em></p>` : ''}
-            </div>
-        `;
-    }
+    document.getElementById("flashcard-question").textContent = card.contenu;
+    document.getElementById("flashcard-answer").textContent = card.reponse;
+    document.getElementById("user-answer").value = "";
+    document.getElementById("back").style.display = "none";
+    document.getElementById("front").style.display = "flex";
+    document.getElementById("next-button").style.display = "none";
 }
 
 // Retourne la carte
 function flipCard() {
-    isQuestionSide = !isQuestionSide;
-    showCard();
+    document.getElementById("front").style.display = "none";
+    document.getElementById("back").style.display = "flex";
 }
 
-// Je connais la réponse
-function knowCard() {
-    const userAnswer = prompt("Quelle est ta réponse ?").trim().toLowerCase();
+// Vérifie la réponse
+function checkAnswer() {
+    const userAnswer = document.getElementById("user-answer").value.trim().toLowerCase();
     const correctAnswer = flashcards[currentCardIndex].reponse.toLowerCase();
     if (userAnswer === correctAnswer.split(' ')[0] || correctAnswer.includes(userAnswer)) {
-        score++;
-        document.getElementById("score-value").textContent = score;
-        flashcards.splice(currentCardIndex, 1);
+        alert("Bonne réponse !");
+        updateScore(1);
     } else {
-        alert(`Réponse incorrecte. La bonne réponse était : ${flashcards[currentCardIndex].reponse}`);
-        score = 0;
-        document.getElementById("score-value").textContent = score;
-        const card = flashcards.splice(currentCardIndex, 1)[0];
-        flashcards.push(card);
+        alert(`Mauvaise réponse. La bonne réponse était : ${flashcards[currentCardIndex].reponse}`);
     }
-    currentCardIndex = 0;
-    isQuestionSide = true;
-    showCard();
+    document.getElementById("next-button").style.display = "block";
 }
 
-// Je ne connais pas la réponse
-function dontKnowCard() {
-    score = 0;
-    document.getElementById("score-value").textContent = score;
-    const card = flashcards.splice(currentCardIndex, 1)[0];
-    flashcards.push(card);
-    currentCardIndex = 0;
-    isQuestionSide = true;
+// Passer à la carte suivante
+function nextCard() {
+    currentCardIndex = (currentCardIndex + 1) % flashcards.length;
     showCard();
 }
 
 // Ajouter une flashcard
-function addFlashcard() {
-    const type = document.getElementById("new-type").value;
+async function addFlashcard() {
     const contenu = document.getElementById("new-contenu").value;
     const reponse = document.getElementById("new-reponse").value;
-    const lien = document.getElementById("new-lien").value;
-    const categorie = document.getElementById("new-categorie").value; // Ajoute un champ "catégorie" dans ton HTML
+    const categorie = document.getElementById("new-categorie").value;
 
     if (!contenu || !reponse) {
-        alert("Veuillez remplir les champs 'Contenu' et 'Réponse' !");
+        alert("Veuillez remplir les champs 'Question' et 'Réponse' !");
         return;
     }
 
-    flashcards.push({ type, contenu, reponse, lien, categorie });
-    alert("Flashcard ajoutée !");
+    try {
+        const response = await fetch(SHEET_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                Type: "question",
+                Contenu: contenu,
+                Réponse: reponse,
+                Catégorie: categorie
+            })
+        });
+        alert("Flashcard ajoutée avec succès !");
+        // Recharge les flashcards
+        await loadFlashcards();
+    } catch (error) {
+        console.error("Erreur lors de l'ajout de la flashcard :", error);
+        alert("Erreur lors de l'ajout de la flashcard. Voir la console pour plus de détails.");
+    }
 
     // Réinitialise le formulaire
     document.getElementById("new-contenu").value = "";
     document.getElementById("new-reponse").value = "";
-    document.getElementById("new-lien").value = "";
     document.getElementById("new-categorie").value = "";
 }
-
-// Charge les flashcards au démarrage
-loadFlashcards();
 
 
