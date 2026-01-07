@@ -22,17 +22,12 @@
             </div>
         </div>
         <div id="flashcard-container">
-            <div id="flashcard" onclick="flipCard()">
-                <div id="front">
-                    <p id="flashcard-question"></p>
-                </div>
-                <div id="back" style="display: none;">
-                    <h2>Réponse : <span id="flashcard-answer"></span></h2>
-                    <div>
-                        <input type="text" id="user-answer" placeholder="Ta réponse">
-                        <button onclick="checkAnswer()">Valider</button>
-                    </div>
-                </div>
+            <div id="flashcard-question-container">
+                <p id="flashcard-question"></p>
+            </div>
+            <div id="answer-container">
+                <input type="text" id="user-answer" placeholder="Ta réponse">
+                <button onclick="checkAnswer()">Valider</button>
             </div>
         </div>
         <button onclick="nextCard()" id="next-button" style="display: none;">Suivant</button>
@@ -46,5 +41,7 @@
     </div>
     <script src="script.js"></script>
 </body>
+</html>
+
 </html>
 
