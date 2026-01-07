@@ -7,6 +7,7 @@ let currentCardIndex = 0;
 let currentUser = null;
 let scores = JSON.parse(localStorage.getItem('scores')) || {};
 let characterPosition = 0;
+let scoreHistory = JSON.parse(localStorage.getItem('scoreHistory')) || {};
 
 // Définir le pseudo de l'utilisateur
 function setPseudo() {
@@ -38,6 +39,13 @@ function updateScore(points) {
     if (!currentUser) return;
     scores[currentUser] = (scores[currentUser] || 0) + points;
     localStorage.setItem('scores', JSON.stringify(scores));
+
+    if (!scoreHistory[currentUser]) {
+        scoreHistory[currentUser] = [];
+    }
+    scoreHistory[currentUser].push(scores[currentUser]);
+    localStorage.setItem('scoreHistory', JSON.stringify(scoreHistory));
+
     document.getElementById("score-value").textContent = scores[currentUser];
     updateScoreboard();
 }
@@ -47,8 +55,8 @@ function moveCharacter(steps) {
     const character = document.getElementById("character");
     characterPosition += steps;
     character.style.left = `${characterPosition}px`;
-    if (characterPosition > window.innerWidth - 100) {
-        characterPosition = window.innerWidth - 100;
+    if (characterPosition > 200) {
+        characterPosition = 200;
         character.style.left = `${characterPosition}px`;
     }
 }
@@ -175,6 +183,5 @@ async function addFlashcard() {
 
 // Charge les flashcards au démarrage
 loadFlashcards();
-
 
 
