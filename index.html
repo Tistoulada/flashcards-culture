@@ -5,42 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FLASHCARDS // LOW-TECH</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="terminal">
+    <div class="container">
         <div class="header">
-            <div class="title">FLASHCARDS // CULTURE G</div>
+            <h1>FLASHCARDS</h1>
             <div class="score">SCORE: <span id="score-value">0</span></div>
         </div>
 
         <div id="login-form">
             <div class="prompt">ENTREZ VOTRE PSEUDO:</div>
-            <input type="text" id="pseudo-input" class="input" placeholder="_">
-            <button onclick="setPseudo()" class="button">VALider</button>
+            <input type="text" id="pseudo-input" class="input" placeholder="ex: Baptiste">
+            <button onclick="setPseudo()" class="button">COMMENCER</button>
         </div>
 
         <div id="game" style="display: none;">
-            <div id="scoreboard" class="scoreboard">
-                <div class="prompt">SCOREBOARD:</div>
-                <ul id="score-list"></ul>
-            </div>
-
-            <div class="flashcard-container">
+            <div class="flashcard">
                 <div id="flashcard-question" class="question"></div>
-                <div class="answer-container">
-                    <div class="prompt">VOTRE RÉPONSE:</div>
-                    <input type="text" id="user-answer" class="input" placeholder="_">
+                <div class="answer-section">
+                    <input type="text" id="user-answer" class="input" placeholder="VOTRE RÉPONSE">
                     <button onclick="checkAnswer()" class="button">VALider</button>
                 </div>
             </div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
 
-
-</html>
 
