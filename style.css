@@ -8,7 +8,7 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     background-color: #111;
     border: 4px double #0f0;
@@ -33,7 +33,42 @@ body {
 }
 
 .game-container {
-    position: relative;
+    display: flex;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #000;
+    border: 2px solid #0f0;
+    padding: 10px;
+    margin-right: 20px;
+    height: fit-content;
+}
+
+.sidebar-title {
+    font-size: 14px;
+    color: #0ff;
+    border-bottom: 1px solid #0f0;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+#score-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#score-list li {
+    margin-bottom: 8px;
+    font-size: 12px;
+    padding: 5px;
+    background-color: #111;
+    border: 1px solid #0f0;
+}
+
+.main-content {
+    flex: 1;
 }
 
 .character-container {
@@ -76,23 +111,10 @@ body {
     font-size: 12px;
 }
 
-.content-container {
-    display: flex;
-    justify-content: space-between;
-}
-
-.scoreboard-container {
-    width: 30%;
-    margin-bottom: 20px;
-    border-right: 1px solid #0f0;
-    padding-right: 10px;
-}
-
 .flashcard {
-    width: 65%;
     border: 2px solid #0f0;
     padding: 20px;
-    margin-left: 10px;
+    margin-top: 20px;
 }
 
 .question {
@@ -133,17 +155,6 @@ body {
 .button:hover {
     background-color: #0f0;
     color: #000;
-}
-
-#score-list {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-#score-list li {
-    margin-bottom: 5px;
-    font-size: 12px;
 }
 
 .shake {
