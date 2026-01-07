@@ -1,10 +1,9 @@
-// URL de ton script Google Apps
-const SHEET_URL = "TU_REMPLACES_PAR_TON_URL_DE_SCRIPT";
+// Remplace cette URL par celle de ton script Google Apps
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbxYAZVc228RG4qdinTR1Y6UZT9LLiHne00a6OEEvhWHO2K0TYus818EsosATpCfrlg8/exec";
 
 // Variables globales
 let flashcards = [];
 let currentCardIndex = 0;
-let score = 0;
 let currentUser = null;
 let scores = JSON.parse(localStorage.getItem('scores')) || {};
 
@@ -49,10 +48,11 @@ async function loadFlashcards() {
         const data = await response.json();
         flashcards = data.map(item => ({
             type: item.Type,
-            contenu: item.Contenu,
+            contenu: item["Contenu (Question)"],
             reponse: item.Réponse,
             categorie: item.Catégorie
         }));
+        console.log("Flashcards chargées :", flashcards);
         showCard();
     } catch (error) {
         console.error("Erreur de chargement :", error);
@@ -85,7 +85,7 @@ function flipCard() {
 function checkAnswer() {
     const userAnswer = document.getElementById("user-answer").value.trim().toLowerCase();
     const correctAnswer = flashcards[currentCardIndex].reponse.toLowerCase();
-    if (userAnswer === correctAnswer.split(' ')[0] || correctAnswer.includes(userAnswer)) {
+    if (userAnswer === correctAnswer || correctAnswer.startsWith(userAnswer)) {
         alert("Bonne réponse !");
         updateScore(1);
     } else {
@@ -120,14 +120,13 @@ async function addFlashcard() {
             },
             body: JSON.stringify({
                 Type: "question",
-                Contenu: contenu,
+                "Contenu (Question)": contenu,
                 Réponse: reponse,
                 Catégorie: categorie
             })
         });
         alert("Flashcard ajoutée avec succès !");
-        // Recharge les flashcards
-        await loadFlashcards();
+        await loadFlashcards(); // Recharge les flashcards
     } catch (error) {
         console.error("Erreur lors de l'ajout de la flashcard :", error);
         alert("Erreur lors de l'ajout de la flashcard. Voir la console pour plus de détails.");
@@ -138,5 +137,4 @@ async function addFlashcard() {
     document.getElementById("new-reponse").value = "";
     document.getElementById("new-categorie").value = "";
 }
-
 
