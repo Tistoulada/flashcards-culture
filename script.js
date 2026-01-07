@@ -66,22 +66,16 @@ async function loadFlashcards() {
 // Affiche une flashcard
 function showCard() {
     if (flashcards.length === 0) {
-        document.getElementById("flashcard").innerHTML = "<h2>Félicitations, tu as fini !</h2>";
+        document.getElementById("flashcard-question").textContent = "Félicitations, tu as fini !";
+        document.getElementById("user-answer").style.display = "none";
+        document.getElementById("next-button").style.display = "none";
         return;
     }
     const card = flashcards[currentCardIndex];
     document.getElementById("flashcard-question").textContent = card.contenu;
-    document.getElementById("flashcard-answer").textContent = card.reponse;
     document.getElementById("user-answer").value = "";
-    document.getElementById("back").style.display = "none";
-    document.getElementById("front").style.display = "flex";
+    document.getElementById("user-answer").style.display = "block";
     document.getElementById("next-button").style.display = "none";
-}
-
-// Retourne la carte
-function flipCard() {
-    document.getElementById("front").style.display = "none";
-    document.getElementById("back").style.display = "flex";
 }
 
 // Vérifie la réponse
@@ -142,5 +136,6 @@ async function addFlashcard() {
     document.getElementById("new-reponse").value = "";
     document.getElementById("new-categorie").value = "";
 }
+
 
 
