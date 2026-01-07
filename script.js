@@ -17,19 +17,7 @@ function setPseudo() {
     currentUser = pseudo;
     document.getElementById("login-form").style.display = "none";
     document.getElementById("game").style.display = "block";
-    updateScoreboard();
     loadFlashcards();
-}
-
-// Mettre à jour le scoreboard
-function updateScoreboard() {
-    const scoreList = document.getElementById("score-list");
-    scoreList.innerHTML = "";
-    for (const user in scores) {
-        const li = document.createElement("li");
-        li.textContent = `${user}: ${scores[user]}`;
-        scoreList.appendChild(li);
-    }
 }
 
 // Mettre à jour le score
@@ -38,7 +26,6 @@ function updateScore(points) {
     scores[currentUser] = (scores[currentUser] || 0) + points;
     localStorage.setItem('scores', JSON.stringify(scores));
     document.getElementById("score-value").textContent = scores[currentUser];
-    updateScoreboard();
 }
 
 // Charge les flashcards depuis le script Google Apps
@@ -67,14 +54,14 @@ function showCard() {
     if (flashcards.length === 0) {
         document.getElementById("flashcard-question").textContent = "FÉLICITATIONS: TU AS FINI!";
         document.getElementById("user-answer").style.display = "none";
-        document.querySelector(".answer-container button").style.display = "none";
+        document.querySelector(".answer-section button").style.display = "none";
         return;
     }
     const card = flashcards[currentCardIndex];
     document.getElementById("flashcard-question").textContent = card.contenu;
     document.getElementById("user-answer").value = "";
     document.getElementById("user-answer").style.display = "block";
-    document.querySelector(".answer-container button").style.display = "block";
+    document.querySelector(".answer-section button").style.display = "block";
 }
 
 // Vérifie la réponse
@@ -98,6 +85,7 @@ function nextCard() {
 
 // Charge les flashcards au démarrage
 loadFlashcards();
+
 
 
 
