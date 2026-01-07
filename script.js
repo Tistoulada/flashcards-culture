@@ -7,7 +7,6 @@ let currentCardIndex = 0;
 let currentUser = null;
 let scores = JSON.parse(localStorage.getItem('scores')) || {};
 let characterPosition = 0;
-let scoreHistory = JSON.parse(localStorage.getItem('scoreHistory')) || {};
 
 // Définir le pseudo de l'utilisateur
 function setPseudo() {
@@ -17,6 +16,9 @@ function setPseudo() {
         return;
     }
     currentUser = pseudo;
+    if (!scores[currentUser]) {
+        scores[currentUser] = 0;
+    }
     document.getElementById("login-form").style.display = "none";
     document.getElementById("game").style.display = "block";
     updateScoreboard();
@@ -32,20 +34,13 @@ function updateScoreboard() {
         li.textContent = `${user}: ${scores[user]}`;
         scoreList.appendChild(li);
     }
+    localStorage.setItem('scores', JSON.stringify(scores));
 }
 
 // Mettre à jour le score
 function updateScore(points) {
     if (!currentUser) return;
     scores[currentUser] = (scores[currentUser] || 0) + points;
-    localStorage.setItem('scores', JSON.stringify(scores));
-
-    if (!scoreHistory[currentUser]) {
-        scoreHistory[currentUser] = [];
-    }
-    scoreHistory[currentUser].push(scores[currentUser]);
-    localStorage.setItem('scoreHistory', JSON.stringify(scoreHistory));
-
     document.getElementById("score-value").textContent = scores[currentUser];
     updateScoreboard();
 }
@@ -65,6 +60,7 @@ function moveCharacter(steps) {
 function showBlood() {
     const bloodSplat = document.getElementById("blood-splat");
     bloodSplat.style.display = "block";
+    bloodSplat.style.left = `${characterPosition + 20}px`;
     setTimeout(() => {
         bloodSplat.style.display = "none";
     }, 1000);
@@ -183,5 +179,6 @@ async function addFlashcard() {
 
 // Charge les flashcards au démarrage
 loadFlashcards();
+
 
 
