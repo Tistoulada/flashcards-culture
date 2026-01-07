@@ -45,6 +45,9 @@ function updateScore(points) {
 async function loadFlashcards() {
     try {
         const response = await fetch(SHEET_URL);
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
         const data = await response.json();
         flashcards = data.map(item => ({
             type: item.Type,
@@ -56,7 +59,7 @@ async function loadFlashcards() {
         showCard();
     } catch (error) {
         console.error("Erreur de chargement :", error);
-        alert("Erreur de chargement. Vérifie la console (F12) pour plus de détails.");
+        alert(`Erreur de chargement : ${error.message}. Vérifie la console (F12) pour plus de détails.`);
     }
 }
 
@@ -114,7 +117,6 @@ async function addFlashcard() {
     try {
         const response = await fetch(SHEET_URL, {
             method: 'POST',
-            mode: 'no-cors',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -125,11 +127,14 @@ async function addFlashcard() {
                 Catégorie: categorie
             })
         });
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
         alert("Flashcard ajoutée avec succès !");
         await loadFlashcards(); // Recharge les flashcards
     } catch (error) {
         console.error("Erreur lors de l'ajout de la flashcard :", error);
-        alert("Erreur lors de l'ajout de la flashcard. Voir la console pour plus de détails.");
+        alert(`Erreur lors de l'ajout de la flashcard : ${error.message}. Voir la console pour plus de détails.`);
     }
 
     // Réinitialise le formulaire
@@ -137,4 +142,5 @@ async function addFlashcard() {
     document.getElementById("new-reponse").value = "";
     document.getElementById("new-categorie").value = "";
 }
+
 
