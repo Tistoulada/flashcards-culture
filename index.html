@@ -3,37 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcards Culture</title>
+    <title>Flashcards Culture Générale</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Flashcards Culture Générale</h1>
-    <div id="score">Score : <span id="score-value">0</span></div>
-    <div id="flashcard" onclick="flipCard()">
-        <div id="front">
-            <img id="flashcard-image" src="" alt="Contenu">
-            <p id="flashcard-question"></p>
-        </div>
-        <div id="back" style="display: none;">
-            <h2>Réponse :</h2>
-            <p id="flashcard-answer"></p>
-        </div>
+    <div id="login-form">
+        <h2>Entrez votre pseudo</h2>
+        <input type="text" id="pseudo-input" placeholder="Votre pseudo">
+        <button onclick="setPseudo()">Valider</button>
     </div>
-    <div id="controls">
-        <button onclick="knowCard()">Je connais !</button>
-        <button onclick="dontKnowCard()">Je ne connais pas</button>
-    </div>
-    <div id="add-form">
-        <h2>Ajouter une flashcard</h2>
-        <select id="new-type">
-            <option value="image">Image</option>
-            <option value="question">Question</option>
-        </select>
-        <input type="text" id="new-contenu" placeholder="Lien image ou question">
-        <input type="text" id="new-reponse" placeholder="Réponse courte (ex: Vinci)">
-        <input type="text" id="new-lien" placeholder="Lien image (si type=image)">
-        <button onclick="addFlashcard()">Ajouter</button>
+    <div id="game" style="display: none;">
+        <div id="score-container">
+            <div id="score">Score : <span id="score-value">0</span></div>
+            <div id="scoreboard">
+                <h2>Scoreboard</h2>
+                <ul id="score-list"></ul>
+            </div>
+        </div>
+        <div id="flashcard-container">
+            <div id="flashcard" onclick="flipCard()">
+                <div id="front">
+                    <p id="flashcard-question"></p>
+                </div>
+                <div id="back" style="display: none;">
+                    <h2>Réponse : <span id="flashcard-answer"></span></h2>
+                    <div>
+                        <input type="text" id="user-answer" placeholder="Ta réponse">
+                        <button onclick="checkAnswer()">Valider</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button onclick="nextCard()" id="next-button" style="display: none;">Suivant</button>
+        <div id="add-form">
+            <h2>Ajouter une flashcard</h2>
+            <input type="text" id="new-contenu" placeholder="Question">
+            <input type="text" id="new-reponse" placeholder="Réponse">
+            <input type="text" id="new-categorie" placeholder="Catégorie">
+            <button onclick="addFlashcard()">Ajouter</button>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
 </html>
+
