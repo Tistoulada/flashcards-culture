@@ -3,15 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLASHCARDS // LOW-TECH</title>
+    <title>FLASHCARDS // ARCADE</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>FLASHCARDS</h1>
+            <h1>FLASHCARDS ARCADE</h1>
             <div class="score">SCORE: <span id="score-value">0</span></div>
+        </div>
+
+        <div class="character-container">
+            <div id="character" class="character">🛡️</div>
+            <div id="blood-splat" class="blood-splat" style="display: none;">💉</div>
         </div>
 
         <div id="login-form">
@@ -21,6 +26,11 @@
         </div>
 
         <div id="game" style="display: none;">
+            <div class="scoreboard-container">
+                <div class="prompt">SCOREBOARD:</div>
+                <ul id="score-list"></ul>
+            </div>
+
             <div class="flashcard">
                 <div id="flashcard-question" class="question"></div>
                 <div class="answer-section">
@@ -28,6 +38,16 @@
                     <button onclick="checkAnswer()" class="button">VALider</button>
                 </div>
             </div>
+
+            <div class="add-flashcard" style="margin-top: 30px; display: none;" id="add-flashcard-form">
+                <div class="prompt">AJOUTER UNE FLASHCARD:</div>
+                <input type="text" id="new-contenu" class="input" placeholder="QUESTION">
+                <input type="text" id="new-reponse" class="input" placeholder="RÉPONSE">
+                <input type="text" id="new-categorie" class="input" placeholder="CATÉGORIE">
+                <button onclick="addFlashcard()" class="button">AJOUTER</button>
+            </div>
+
+            <button onclick="toggleAddFlashcard()" class="button" style="margin-top: 20px;">+ AJOUTER FLASHCARD</button>
         </div>
     </div>
     <script src="script.js"></script>
