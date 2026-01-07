@@ -1,16 +1,16 @@
 body {
-    font-family: 'Inconsolata', monospace;
-    background-color: #111;
+    font-family: 'VT323', monospace;
+    background-color: #000;
     color: #0f0;
     margin: 0;
     padding: 20px;
     line-height: 1.4;
 }
 
-.terminal {
-    max-width: 800px;
+.container {
+    max-width: 600px;
     margin: 0 auto;
-    background-color: #000;
+    background-color: #111;
     border: 2px solid #0f0;
     padding: 20px;
     border-radius: 0;
@@ -24,13 +24,13 @@ body {
     margin-bottom: 20px;
 }
 
-.title {
-    font-size: 20px;
-    font-weight: bold;
+.header h1 {
+    font-size: 24px;
+    margin: 0;
 }
 
 .score {
-    font-size: 16px;
+    font-size: 18px;
 }
 
 #login-form, #game {
@@ -39,19 +39,25 @@ body {
 
 .prompt {
     color: #0ff;
-    margin-bottom: 5px;
-    font-size: 14px;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.flashcard {
+    border: 1px solid #0f0;
+    padding: 20px;
+    margin-top: 20px;
 }
 
 .question {
-    font-size: 18px;
+    font-size: 20px;
     margin-bottom: 20px;
     color: #fff;
     border-bottom: 1px dashed #0f0;
     padding-bottom: 10px;
 }
 
-.answer-container {
+.answer-section {
     margin-top: 20px;
 }
 
@@ -59,43 +65,26 @@ body {
     background-color: #000;
     color: #0f0;
     border: 1px solid #0f0;
-    padding: 8px;
+    padding: 10px;
     width: 100%;
     max-width: 400px;
-    font-family: 'Inconsolata', monospace;
-    font-size: 16px;
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    margin-bottom: 10px;
 }
 
 .button {
     background-color: #000;
     color: #0f0;
     border: 1px solid #0f0;
-    padding: 8px 16px;
-    margin-top: 10px;
+    padding: 10px 20px;
     cursor: pointer;
-    font-family: 'Inconsolata', monospace;
-    font-size: 14px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
 }
 
 .button:hover {
     background-color: #0f0;
     color: #000;
-}
-
-.scoreboard {
-    margin-bottom: 20px;
-    border-bottom: 1px solid #0f0;
-    padding-bottom: 10px;
-}
-
-#score-list {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-#score-list li {
-    color: #0ff;
-    margin-bottom: 5px;
 }
 
