@@ -5,7 +5,8 @@ const SHEET_URL = "https://script.google.com/macros/s/AKfycbxYAZVc228RG4qdinTR1Y
 let flashcards = [];
 let currentCardIndex = 0;
 let currentUser = null;
-let scores = JSON.parse(localStorage.getItem('scores')) || {};
+let currentScore = 0;
+let bestScores = JSON.parse(localStorage.getItem('bestScores')) || {};
 let characterPosition = 0;
 
 // Définir le pseudo de l'utilisateur
@@ -16,33 +17,47 @@ function setPseudo() {
         return;
     }
     currentUser = pseudo;
-    if (!scores[currentUser]) {
-        scores[currentUser] = 0;
-    }
+    currentScore = 0;
+    document.getElementById("score-value").textContent = currentScore;
     document.getElementById("login-form").style.display = "none";
     document.getElementById("game").style.display = "block";
     updateScoreboard();
     loadFlashcards();
+    resetCharacter();
+}
+
+// Réinitialiser le personnage
+function resetCharacter() {
+    const character = document.getElementById("character");
+    characterPosition = 0;
+    character.style.left = `${characterPosition}px`;
 }
 
 // Mettre à jour le scoreboard
 function updateScoreboard() {
     const scoreList = document.getElementById("score-list");
     scoreList.innerHTML = "";
-    for (const user in scores) {
+    for (const user in bestScores) {
         const li = document.createElement("li");
-        li.textContent = `${user}: ${scores[user]}`;
+        li.textContent = `${user}: ${bestScores[user]}`;
         scoreList.appendChild(li);
     }
-    localStorage.setItem('scores', JSON.stringify(scores));
 }
 
 // Mettre à jour le score
 function updateScore(points) {
+    currentScore += points;
+    document.getElementById("score-value").textContent = currentScore;
+}
+
+// Enregistrer le meilleur score
+function saveBestScore() {
     if (!currentUser) return;
-    scores[currentUser] = (scores[currentUser] || 0) + points;
-    document.getElementById("score-value").textContent = scores[currentUser];
-    updateScoreboard();
+    if (!bestScores[currentUser] || currentScore > bestScores[currentUser]) {
+        bestScores[currentUser] = currentScore;
+        localStorage.setItem('bestScores', JSON.stringify(bestScores));
+        updateScoreboard();
+    }
 }
 
 // Déplacer le personnage
@@ -109,20 +124,22 @@ function checkAnswer() {
     const flashcardElement = document.querySelector(".flashcard");
 
     if (userAnswer === correctAnswer || correctAnswer.startsWith(userAnswer)) {
-        alert("BONNE RÉPONSE!");
         updateScore(1);
         moveCharacter(20); // Le personnage avance
         flashcardElement.classList.remove("shake");
+        nextCard();
     } else {
         alert(`MAUVAISE RÉPONSE. LA BONNE RÉPONSE ÉTAIT: ${flashcards[currentCardIndex].reponse}`);
         flashcardElement.classList.add("shake");
         showBlood(); // Animation de sang
-        updateScore(-1); // Réduit le score en cas de mauvaise réponse
+        saveBestScore(); // Enregistre le meilleur score
         setTimeout(() => {
             flashcardElement.classList.remove("shake");
-        }, 500);
+            resetCharacter(); // Réinitialise le personnage
+            currentScore = 0; // Réinitialise le score
+            document.getElementById("score-value").textContent = currentScore;
+        }, 1000);
     }
-    nextCard();
 }
 
 // Passer à la carte suivante
@@ -179,6 +196,7 @@ async function addFlashcard() {
 
 // Charge les flashcards au démarrage
 loadFlashcards();
+
 
 
 
