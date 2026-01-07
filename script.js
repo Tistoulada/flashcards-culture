@@ -55,27 +55,26 @@ async function loadFlashcards() {
             reponse: item.Réponse,
             categorie: item.Catégorie
         }));
-        console.log("Flashcards chargées :", flashcards);
         showCard();
     } catch (error) {
         console.error("Erreur de chargement :", error);
-        alert(`Erreur de chargement : ${error.message}. Vérifie la console (F12) pour plus de détails.`);
+        alert(`Erreur de chargement : ${error.message}.`);
     }
 }
 
 // Affiche une flashcard
 function showCard() {
     if (flashcards.length === 0) {
-        document.getElementById("flashcard-question").textContent = "Félicitations, tu as fini !";
+        document.getElementById("flashcard-question").textContent = "FÉLICITATIONS: TU AS FINI!";
         document.getElementById("user-answer").style.display = "none";
-        document.getElementById("next-button").style.display = "none";
+        document.querySelector(".answer-container button").style.display = "none";
         return;
     }
     const card = flashcards[currentCardIndex];
     document.getElementById("flashcard-question").textContent = card.contenu;
     document.getElementById("user-answer").value = "";
     document.getElementById("user-answer").style.display = "block";
-    document.getElementById("next-button").style.display = "none";
+    document.querySelector(".answer-container button").style.display = "block";
 }
 
 // Vérifie la réponse
@@ -83,12 +82,12 @@ function checkAnswer() {
     const userAnswer = document.getElementById("user-answer").value.trim().toLowerCase();
     const correctAnswer = flashcards[currentCardIndex].reponse.toLowerCase();
     if (userAnswer === correctAnswer || correctAnswer.startsWith(userAnswer)) {
-        alert("Bonne réponse !");
+        alert("BONNE RÉPONSE!");
         updateScore(1);
     } else {
-        alert(`Mauvaise réponse. La bonne réponse était : ${flashcards[currentCardIndex].reponse}`);
+        alert(`MAUVAISE RÉPONSE. LA BONNE RÉPONSE ÉTAIT: ${flashcards[currentCardIndex].reponse}`);
     }
-    document.getElementById("next-button").style.display = "block";
+    nextCard();
 }
 
 // Passer à la carte suivante
@@ -97,45 +96,8 @@ function nextCard() {
     showCard();
 }
 
-// Ajouter une flashcard
-async function addFlashcard() {
-    const contenu = document.getElementById("new-contenu").value;
-    const reponse = document.getElementById("new-reponse").value;
-    const categorie = document.getElementById("new-categorie").value;
-
-    if (!contenu || !reponse) {
-        alert("Veuillez remplir les champs 'Question' et 'Réponse' !");
-        return;
-    }
-
-    try {
-        const response = await fetch(SHEET_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                Type: "question",
-                "Contenu (Question)": contenu,
-                Réponse: reponse,
-                Catégorie: categorie
-            })
-        });
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-        }
-        alert("Flashcard ajoutée avec succès !");
-        await loadFlashcards(); // Recharge les flashcards
-    } catch (error) {
-        console.error("Erreur lors de l'ajout de la flashcard :", error);
-        alert(`Erreur lors de l'ajout de la flashcard : ${error.message}. Voir la console pour plus de détails.`);
-    }
-
-    // Réinitialise le formulaire
-    document.getElementById("new-contenu").value = "";
-    document.getElementById("new-reponse").value = "";
-    document.getElementById("new-categorie").value = "";
-}
+// Charge les flashcards au démarrage
+loadFlashcards();
 
 
 
