@@ -22,9 +22,9 @@ function setPseudo() {
     document.getElementById("score-value").textContent = currentScore;
     document.getElementById("login-form").style.display = "none";
     document.getElementById("game").style.display = "block";
+    loadScores();
     updateLives();
     loadFlashcards();
-    loadScores();
     resetCharacter();
 }
 
@@ -175,7 +175,34 @@ function checkAnswer() {
     const correctAnswer = flashcards[currentCardIndex].reponse.toLowerCase();
     const flashcardElement = document.querySelector(".flashcard");
 
-    if (userAnswer === correctAnswer || correctAnswer.startsWith(userAnswer)) {
+    // Fonction pour normaliser les réponses
+    function normalizeAnswer(answer) {
+        // Remplace les accents et caractères spéciaux
+        answer = answer.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        // Supprime les espaces multiples
+        answer = answer.replace(/\s+/g, " ");
+        return answer;
+    }
+
+    // Normalisation des réponses
+    const normalizedUserAnswer = normalizeAnswer(userAnswer);
+    const normalizedCorrectAnswer = normalizeAnswer(correctAnswer);
+
+    // Vérification flexible des réponses
+    if (
+        normalizedUserAnswer === normalizedCorrectAnswer ||
+        normalizedCorrectAnswer.startsWith(normalizedUserAnswer) ||
+        normalizedUserAnswer.startsWith(normalizedCorrectAnswer) ||
+        // Vérification des prénoms
+        (normalizedCorrectAnswer.includes(" ") && normalizedUserAnswer === normalizedCorrectAnswer.split(" ")[1]) ||
+        // Vérification des fautes courantes
+        (normalizedCorrectAnswer === "arachnophobie" && (normalizedUserAnswer === "arachnophobe" || normalizedUserAnswer === "arachnophobies")) ||
+        (normalizedCorrectAnswer === "acrophobie" && normalizedUserAnswer === "acrophobe") ||
+        (normalizedCorrectAnswer === "aquaphobie" && normalizedUserAnswer === "aquaphobe") ||
+        (normalizedCorrectAnswer === "mysophobie" && normalizedUserAnswer === "mysophobe") ||
+        // Ajoute d'autres cas spécifiques ici
+        levenshteinDistance(normalizedUserAnswer, normalizedCorrectAnswer) <= 2
+    ) {
         document.querySelector(".flashcard").classList.add("flash");
         setTimeout(() => {
             document.querySelector(".flashcard").classList.remove("flash");
@@ -202,6 +229,38 @@ function checkAnswer() {
             }, 1000);
         }
     }
+}
+
+// Fonction pour calculer la distance de Levenshtein (pour autoriser des fautes mineures)
+function levenshteinDistance(a, b) {
+    if (a.length === 0) return b.length;
+    if (b.length === 0) return a.length;
+
+    const matrix = [];
+
+    for (let i = 0; i <= b.length; i++) {
+        matrix[i] = [i];
+    }
+
+    for (let j = 0; j <= a.length; j++) {
+        matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1, // substitution
+                    matrix[i][j - 1] + 1,     // insertion
+                    matrix[i - 1][j] + 1      // suppression
+                );
+            }
+        }
+    }
+
+    return matrix[b.length][a.length];
 }
 
 // Relancer la série de questions depuis le début
@@ -270,4 +329,3 @@ async function addFlashcard() {
 
 // Charge les flashcards au démarrage
 loadFlashcards();
-
