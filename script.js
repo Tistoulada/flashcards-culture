@@ -8,7 +8,8 @@ let currentUser = null;
 let currentScore = 0;
 let characterPosition = 0;
 let lives = 3;
-let usedIndices = []; // Pour suivre les indices déjà utilisés
+let usedIndices = [];
+let consecutiveCorrectAnswers = 0;
 
 // Définir le pseudo de l'utilisateur
 function setPseudo() {
@@ -20,6 +21,7 @@ function setPseudo() {
     currentUser = pseudo;
     currentScore = 0;
     lives = 3;
+    consecutiveCorrectAnswers = 0;
     document.getElementById("score-value").textContent = currentScore;
     document.getElementById("login-form").style.display = "none";
     document.getElementById("game").style.display = "block";
@@ -34,7 +36,7 @@ function resetCharacter() {
     const character = document.getElementById("character");
     characterPosition = 0;
     character.style.left = `${characterPosition}px`;
-    usedIndices = []; // Réinitialiser les indices utilisés
+    usedIndices = [];
 }
 
 // Mettre à jour les vies
@@ -256,6 +258,8 @@ function checkAnswer() {
         (normalizedCorrectAnswer === "acrophobie" && normalizedUserAnswer === "acrophobe") ||
         (normalizedCorrectAnswer === "aquaphobie" && normalizedUserAnswer === "aquaphobe") ||
         (normalizedCorrectAnswer === "mysophobie" && normalizedUserAnswer === "mysophobe") ||
+        // Vérification des réponses numériques
+        (!isNaN(normalizedUserAnswer) && !isNaN(normalizedCorrectAnswer) && parseInt(normalizedUserAnswer) === parseInt(normalizedCorrectAnswer)) ||
         // Ajoute d'autres cas spécifiques ici
         levenshteinDistance(normalizedUserAnswer, normalizedCorrectAnswer) <= 2
     ) {
@@ -264,14 +268,22 @@ function checkAnswer() {
             document.querySelector(".flashcard").classList.remove("flash");
         }, 500);
         updateScore(1);
+        consecutiveCorrectAnswers++;
+        if (consecutiveCorrectAnswers % 10 === 0) {
+            lives++;
+            updateLives();
+            alert(`FÉLICITATIONS ! Tu as eu 10 bonnes réponses d'affilée et tu gagnes un cœur ! 💚`);
+        }
         moveCharacter(window.innerWidth < 600 ? 15 : 20);
         flashcardElement.classList.remove("shake");
         setTimeout(showCard, 500); // Attendre la fin de l'animation
     } else {
         flashcardElement.classList.add("shake");
         showBloodDrops();
+        alert(`MAUVAISE RÉPONSE. La bonne réponse était : ${correctAnswer}`);
         lives--;
         updateLives();
+        consecutiveCorrectAnswers = 0;
         if (lives <= 0) {
             saveScore(); // Enregistre le score
             setTimeout(() => {
@@ -298,6 +310,7 @@ function restartGame() {
     currentCardIndex = 0;
     currentScore = 0;
     lives = 3;
+    consecutiveCorrectAnswers = 0;
     document.getElementById("score-value").textContent = currentScore;
     updateLives();
     resetCharacter();
@@ -336,7 +349,8 @@ async function addFlashcard() {
             })
         });
         if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`Erreur HTTP: ${response.status} - ${JSON.stringify(errorData)}`);
         }
         alert("Flashcard ajoutée avec succès !");
         document.getElementById("new-contenu").value = "";
@@ -345,10 +359,9 @@ async function addFlashcard() {
         await loadFlashcards(); // Recharge les flashcards
     } catch (error) {
         console.error("Erreur lors de l'ajout de la flashcard :", error);
-        alert(`Erreur lors de l'ajout de la flashcard : ${error.message}.`);
+        alert(`Erreur lors de l'ajout de la flashcard : ${error.message}. Vérifie que l'URL du script est correcte et que le script est déployé.`);
     }
 }
 
 // Charge les flashcards au démarrage
 loadFlashcards();
-
