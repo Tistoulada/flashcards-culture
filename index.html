@@ -14,46 +14,54 @@
             <div class="score">SCORE: <span id="score-value">0</span></div>
         </div>
 
-        <div class="game-container">
-            <div class="sidebar">
-                <div class="sidebar-title">SCOREBOARD</div>
-                <ul id="score-list"></ul>
-            </div>
+        <div class="character-container">
+            <div id="character" class="character">🏰</div>
+            <div id="blood-splat-container"></div>
+        </div>
 
-            <div class="main-content">
-                <div class="character-container">
-                    <div id="character" class="character">🏰</div>
-                    <div id="blood-splat" class="blood-splat"></div>
+        <div class="lives-container">
+            <div class="prompt">VIES:</div>
+            <div id="lives" class="lives">❤️❤️❤️</div>
+        </div>
+
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+
+        <div id="login-form">
+            <div class="prompt">ENTREZ VOTRE PSEUDO:</div>
+            <input type="text" id="pseudo-input" class="input" placeholder="ex: Baptiste">
+            <button onclick="setPseudo()" class="button">COMMENCER</button>
+        </div>
+
+        <div id="game" style="display: none;">
+            <div class="game-content">
+                <div class="scoreboard-container">
+                    <div class="prompt">SCOREBOARD:</div>
+                    <ul id="score-list"></ul>
                 </div>
 
-                <div id="login-form">
-                    <div class="prompt">ENTREZ VOTRE PSEUDO:</div>
-                    <input type="text" id="pseudo-input" class="input" placeholder="ex: Baptiste">
-                    <button onclick="setPseudo()" class="button">COMMENCER</button>
-                </div>
-
-                <div id="game" style="display: none;">
-                    <div class="flashcard">
-                        <div id="flashcard-question" class="question"></div>
-                        <div class="answer-section">
-                            <input type="text" id="user-answer" class="input" placeholder="VOTRE RÉPONSE">
-                            <button onclick="checkAnswer()" class="button">VALider</button>
-                        </div>
+                <div class="flashcard">
+                    <div id="flashcard-question" class="question"></div>
+                    <div class="answer-section">
+                        <input type="text" id="user-answer" class="input" placeholder="VOTRE RÉPONSE">
+                        <button onclick="checkAnswer()" class="button">VALider</button>
                     </div>
-
-                    <div class="add-flashcard" style="margin-top: 30px; display: none;" id="add-flashcard-form">
-                        <div class="prompt">AJOUTER UNE FLASHCARD:</div>
-                        <input type="text" id="new-contenu" class="input" placeholder="QUESTION">
-                        <input type="text" id="new-reponse" class="input" placeholder="RÉPONSE">
-                        <input type="text" id="new-categorie" class="input" placeholder="CATÉGORIE">
-                        <button onclick="addFlashcard()" class="button">AJOUTER</button>
-                    </div>
-
-                    <button onclick="toggleAddFlashcard()" class="button" style="margin-top: 20px;">+ AJOUTER FLASHCARDS</button>
                 </div>
+
+                <div class="add-flashcard" style="margin-top: 20px; display: none;" id="add-flashcard-form">
+                    <div class="prompt">AJOUTER UNE FLASHCARD:</div>
+                    <input type="text" id="new-contenu" class="input" placeholder="QUESTION">
+                    <input type="text" id="new-reponse" class="input" placeholder="RÉPONSE">
+                    <input type="text" id="new-categorie" class="input" placeholder="CATÉGORIE">
+                    <button onclick="addFlashcard()" class="button">AJOUTER</button>
+                </div>
+
+                <button onclick="toggleAddFlashcard()" class="button" style="margin-top: 20px;">+ AJOUTER FLASHCARDS</button>
             </div>
         </div>
     </div>
     <script src="script.js"></script>
 </body>
 </html>
+
