@@ -135,11 +135,19 @@ function checkAnswer() {
         saveBestScore(); // Enregistre le meilleur score
         setTimeout(() => {
             flashcardElement.classList.remove("shake");
-            resetCharacter(); // Réinitialise le personnage
-            currentScore = 0; // Réinitialise le score actuel
-            document.getElementById("score-value").textContent = currentScore;
+            restartGame(); // Relance la série de questions depuis le début
         }, 1000);
     }
+}
+
+// Relancer la série de questions depuis le début
+function restartGame() {
+    currentCardIndex = 0;
+    currentScore = 0;
+    document.getElementById("score-value").textContent = currentScore;
+    resetCharacter();
+    showCard();
+    alert("PARTIE TERMINÉE. NOUVELLE PARTIE COMMENCÉE!");
 }
 
 // Passer à la carte suivante
@@ -196,6 +204,5 @@ async function addFlashcard() {
 
 // Charge les flashcards au démarrage
 loadFlashcards();
-
 
 
