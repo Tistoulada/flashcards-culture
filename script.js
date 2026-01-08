@@ -8,6 +8,7 @@ let currentUser = null;
 let currentScore = 0;
 let bestScores = JSON.parse(localStorage.getItem('bestScores')) || {};
 let characterPosition = 0;
+let lives = 3;
 
 // Définir le pseudo de l'utilisateur
 function setPseudo() {
@@ -18,10 +19,12 @@ function setPseudo() {
     }
     currentUser = pseudo;
     currentScore = 0;
+    lives = 3;
     document.getElementById("score-value").textContent = currentScore;
     document.getElementById("login-form").style.display = "none";
     document.getElementById("game").style.display = "block";
     updateScoreboard();
+    updateLives();
     loadFlashcards();
     resetCharacter();
 }
@@ -50,6 +53,12 @@ function updateScore(points) {
     document.getElementById("score-value").textContent = currentScore;
 }
 
+// Mettre à jour les vies
+function updateLives() {
+    const livesElement = document.getElementById("lives");
+    livesElement.textContent = "❤️".repeat(lives);
+}
+
 // Enregistrer le meilleur score
 function saveBestScore() {
     if (!currentUser) return;
@@ -65,20 +74,35 @@ function moveCharacter(steps) {
     const character = document.getElementById("character");
     characterPosition += steps;
     character.style.left = `${characterPosition}px`;
-    if (characterPosition > 200) {
-        characterPosition = 200;
+    if (characterPosition > (window.innerWidth < 600 ? 150 : 200)) {
+        characterPosition = window.innerWidth < 600 ? 150 : 200;
         character.style.left = `${characterPosition}px`;
     }
 }
 
-// Afficher l'animation de sang
-function showBlood() {
-    const bloodSplat = document.getElementById("blood-splat");
-    bloodSplat.style.display = "block";
-    bloodSplat.style.left = `${characterPosition + 20}px`;
-    setTimeout(() => {
-        bloodSplat.style.display = "none";
-    }, 1000);
+// Afficher l'animation de gouttes de sang
+function showBloodDrops() {
+    const bloodContainer = document.getElementById("blood-splat-container");
+    bloodContainer.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+        const bloodDrop = document.createElement("div");
+        bloodDrop.className = "blood-drop";
+        bloodDrop.style.left = `${characterPosition + Math.random() * (window.innerWidth < 600 ? 80 : 100)}px`;
+        bloodDrop.style.top = `${Math.random() * (window.innerWidth < 600 ? 30 : 50)}px`;
+        bloodDrop.style.animationDelay = `${i * 0.2}s`;
+        bloodContainer.appendChild(bloodDrop);
+        bloodDrop.style.display = "block";
+        setTimeout(() => {
+            bloodDrop.remove();
+        }, 1000);
+    }
+}
+
+// Mettre à jour la barre de progression
+function updateProgressBar() {
+    const progressBar = document.getElementById("progress-bar");
+    const progress = ((currentCardIndex + 1) / flashcards.length) * 100;
+    progressBar.style.width = `${progress}%`;
 }
 
 // Charge les flashcards depuis le script Google Apps
@@ -115,6 +139,7 @@ function showCard() {
     document.getElementById("user-answer").value = "";
     document.getElementById("user-answer").style.display = "block";
     document.querySelector(".answer-section button").style.display = "block";
+    updateProgressBar();
 }
 
 // Vérifie la réponse
@@ -124,19 +149,31 @@ function checkAnswer() {
     const flashcardElement = document.querySelector(".flashcard");
 
     if (userAnswer === correctAnswer || correctAnswer.startsWith(userAnswer)) {
+        document.querySelector(".flashcard").classList.add("flash");
+        setTimeout(() => {
+            document.querySelector(".flashcard").classList.remove("flash");
+        }, 500);
         updateScore(1);
-        moveCharacter(20); // Le personnage avance
+        moveCharacter(window.innerWidth < 600 ? 15 : 20);
         flashcardElement.classList.remove("shake");
         nextCard();
     } else {
-        alert(`MAUVAISE RÉPONSE. LA BONNE RÉPONSE ÉTAIT: ${flashcards[currentCardIndex].reponse}`);
         flashcardElement.classList.add("shake");
-        showBlood(); // Animation de sang
-        saveBestScore(); // Enregistre le meilleur score
-        setTimeout(() => {
-            flashcardElement.classList.remove("shake");
-            restartGame(); // Relance la série de questions depuis le début
-        }, 1000);
+        showBloodDrops();
+        lives--;
+        updateLives();
+        if (lives <= 0) {
+            saveBestScore();
+            setTimeout(() => {
+                flashcardElement.classList.remove("shake");
+                restartGame();
+            }, 1000);
+        } else {
+            setTimeout(() => {
+                flashcardElement.classList.remove("shake");
+                nextCard();
+            }, 1000);
+        }
     }
 }
 
@@ -144,7 +181,9 @@ function checkAnswer() {
 function restartGame() {
     currentCardIndex = 0;
     currentScore = 0;
+    lives = 3;
     document.getElementById("score-value").textContent = currentScore;
+    updateLives();
     resetCharacter();
     showCard();
     alert("PARTIE TERMINÉE. NOUVELLE PARTIE COMMENCÉE!");
@@ -204,5 +243,4 @@ async function addFlashcard() {
 
 // Charge les flashcards au démarrage
 loadFlashcards();
-
 
