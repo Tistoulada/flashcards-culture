@@ -44,7 +44,7 @@ function updateScoreboard() {
     }
 }
 
-// Mettre à jour le score
+// Mettre à jour le score actuel
 function updateScore(points) {
     currentScore += points;
     document.getElementById("score-value").textContent = currentScore;
@@ -136,7 +136,7 @@ function checkAnswer() {
         setTimeout(() => {
             flashcardElement.classList.remove("shake");
             resetCharacter(); // Réinitialise le personnage
-            currentScore = 0; // Réinitialise le score
+            currentScore = 0; // Réinitialise le score actuel
             document.getElementById("score-value").textContent = currentScore;
         }, 1000);
     }
@@ -196,7 +196,6 @@ async function addFlashcard() {
 
 // Charge les flashcards au démarrage
 loadFlashcards();
-
 
 
 
