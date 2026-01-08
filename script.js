@@ -8,6 +8,7 @@ let currentUser = null;
 let currentScore = 0;
 let characterPosition = 0;
 let lives = 3;
+let usedIndices = []; // Pour suivre les indices déjà utilisés
 
 // Définir le pseudo de l'utilisateur
 function setPseudo() {
@@ -33,6 +34,7 @@ function resetCharacter() {
     const character = document.getElementById("character");
     characterPosition = 0;
     character.style.left = `${characterPosition}px`;
+    usedIndices = []; // Réinitialiser les indices utilisés
 }
 
 // Mettre à jour les vies
@@ -44,7 +46,7 @@ function updateLives() {
 // Mettre à jour la barre de progression
 function updateProgressBar() {
     const progressBar = document.getElementById("progress-bar");
-    const progress = ((currentCardIndex + 1) / flashcards.length) * 100;
+    const progress = ((usedIndices.length) / flashcards.length) * 100;
     progressBar.style.width = `${progress}%`;
 }
 
@@ -122,11 +124,13 @@ async function loadScores() {
 function updateScoreboard(scores) {
     const scoreList = document.getElementById("score-list");
     scoreList.innerHTML = "";
-    scores.sort((a, b) => b.Score - a.Score).forEach(score => {
-        const li = document.createElement("li");
-        li.textContent = `${score.User}: ${score.Score}`;
-        scoreList.appendChild(li);
-    });
+    if (scores && scores.length > 0) {
+        scores.sort((a, b) => b.Score - a.Score).forEach(score => {
+            const li = document.createElement("li");
+            li.textContent = `${score.User}: ${score.Score}`;
+            scoreList.appendChild(li);
+        });
+    }
 }
 
 // Enregistrer le score
@@ -153,7 +157,7 @@ async function saveScore() {
     }
 }
 
-// Affiche une flashcard
+// Affiche une flashcard aléatoire
 function showCard() {
     if (flashcards.length === 0) {
         document.getElementById("flashcard-question").textContent = "FÉLICITATIONS: TU AS FINI!";
@@ -161,6 +165,21 @@ function showCard() {
         document.querySelector(".answer-section button").style.display = "none";
         return;
     }
+
+    // Si toutes les questions ont été utilisées, réinitialiser
+    if (usedIndices.length === flashcards.length) {
+        usedIndices = [];
+    }
+
+    // Sélectionner un indice aléatoire non utilisé
+    let randomIndex;
+    do {
+        randomIndex = Math.floor(Math.random() * flashcards.length);
+    } while (usedIndices.includes(randomIndex));
+
+    usedIndices.push(randomIndex);
+    currentCardIndex = randomIndex;
+
     const card = flashcards[currentCardIndex];
     document.getElementById("flashcard-question").textContent = card.contenu;
     document.getElementById("user-answer").value = "";
@@ -169,69 +188,16 @@ function showCard() {
     updateProgressBar();
 }
 
-// Vérifie la réponse
-function checkAnswer() {
-    const userAnswer = document.getElementById("user-answer").value.trim().toLowerCase();
-    const correctAnswer = flashcards[currentCardIndex].reponse.toLowerCase();
-    const flashcardElement = document.querySelector(".flashcard");
-
-    // Fonction pour normaliser les réponses
-    function normalizeAnswer(answer) {
-        // Remplace les accents et caractères spéciaux
-        answer = answer.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        // Supprime les espaces multiples
-        answer = answer.replace(/\s+/g, " ");
-        return answer;
-    }
-
-    // Normalisation des réponses
-    const normalizedUserAnswer = normalizeAnswer(userAnswer);
-    const normalizedCorrectAnswer = normalizeAnswer(correctAnswer);
-
-    // Vérification flexible des réponses
-    if (
-        normalizedUserAnswer === normalizedCorrectAnswer ||
-        normalizedCorrectAnswer.startsWith(normalizedUserAnswer) ||
-        normalizedUserAnswer.startsWith(normalizedCorrectAnswer) ||
-        // Vérification des prénoms
-        (normalizedCorrectAnswer.includes(" ") && normalizedUserAnswer === normalizedCorrectAnswer.split(" ")[1]) ||
-        // Vérification des fautes courantes
-        (normalizedCorrectAnswer === "arachnophobie" && (normalizedUserAnswer === "arachnophobe" || normalizedUserAnswer === "arachnophobies")) ||
-        (normalizedCorrectAnswer === "acrophobie" && normalizedUserAnswer === "acrophobe") ||
-        (normalizedCorrectAnswer === "aquaphobie" && normalizedUserAnswer === "aquaphobe") ||
-        (normalizedCorrectAnswer === "mysophobie" && normalizedUserAnswer === "mysophobe") ||
-        // Ajoute d'autres cas spécifiques ici
-        levenshteinDistance(normalizedUserAnswer, normalizedCorrectAnswer) <= 2
-    ) {
-        document.querySelector(".flashcard").classList.add("flash");
-        setTimeout(() => {
-            document.querySelector(".flashcard").classList.remove("flash");
-        }, 500);
-        updateScore(1);
-        moveCharacter(window.innerWidth < 600 ? 15 : 20);
-        flashcardElement.classList.remove("shake");
-        nextCard();
-    } else {
-        flashcardElement.classList.add("shake");
-        showBloodDrops();
-        lives--;
-        updateLives();
-        if (lives <= 0) {
-            saveScore(); // Enregistre le score
-            setTimeout(() => {
-                flashcardElement.classList.remove("shake");
-                restartGame();
-            }, 1000);
-        } else {
-            setTimeout(() => {
-                flashcardElement.classList.remove("shake");
-                nextCard();
-            }, 1000);
-        }
-    }
+// Fonction pour normaliser les réponses
+function normalizeAnswer(answer) {
+    // Remplace les accents et caractères spéciaux
+    answer = answer.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    // Supprime les espaces multiples
+    answer = answer.replace(/\s+/g, " ").trim().toLowerCase();
+    return answer;
 }
 
-// Fonction pour calculer la distance de Levenshtein (pour autoriser des fautes mineures)
+// Fonction pour calculer la distance de Levenshtein
 function levenshteinDistance(a, b) {
     if (a.length === 0) return b.length;
     if (b.length === 0) return a.length;
@@ -263,6 +229,70 @@ function levenshteinDistance(a, b) {
     return matrix[b.length][a.length];
 }
 
+// Vérifie la réponse
+function checkAnswer() {
+    const userAnswer = document.getElementById("user-answer").value.trim();
+    if (!userAnswer) {
+        alert("Veuillez entrer une réponse.");
+        return;
+    }
+
+    const correctAnswer = flashcards[currentCardIndex].reponse;
+    const flashcardElement = document.querySelector(".flashcard");
+
+    // Normalisation des réponses
+    const normalizedUserAnswer = normalizeAnswer(userAnswer);
+    const normalizedCorrectAnswer = normalizeAnswer(correctAnswer);
+
+    // Vérification flexible des réponses
+    if (
+        normalizedUserAnswer === normalizedCorrectAnswer ||
+        normalizedCorrectAnswer.startsWith(normalizedUserAnswer) ||
+        normalizedUserAnswer.startsWith(normalizedCorrectAnswer) ||
+        // Vérification des prénoms
+        (normalizedCorrectAnswer.includes(" ") && normalizedUserAnswer === normalizedCorrectAnswer.split(" ")[1]) ||
+        // Vérification des fautes courantes
+        (normalizedCorrectAnswer === "arachnophobie" && (normalizedUserAnswer === "arachnophobe" || normalizedUserAnswer === "arachnophobies")) ||
+        (normalizedCorrectAnswer === "acrophobie" && normalizedUserAnswer === "acrophobe") ||
+        (normalizedCorrectAnswer === "aquaphobie" && normalizedUserAnswer === "aquaphobe") ||
+        (normalizedCorrectAnswer === "mysophobie" && normalizedUserAnswer === "mysophobe") ||
+        // Ajoute d'autres cas spécifiques ici
+        levenshteinDistance(normalizedUserAnswer, normalizedCorrectAnswer) <= 2
+    ) {
+        document.querySelector(".flashcard").classList.add("flash");
+        setTimeout(() => {
+            document.querySelector(".flashcard").classList.remove("flash");
+        }, 500);
+        updateScore(1);
+        moveCharacter(window.innerWidth < 600 ? 15 : 20);
+        flashcardElement.classList.remove("shake");
+        setTimeout(showCard, 500); // Attendre la fin de l'animation
+    } else {
+        flashcardElement.classList.add("shake");
+        showBloodDrops();
+        lives--;
+        updateLives();
+        if (lives <= 0) {
+            saveScore(); // Enregistre le score
+            setTimeout(() => {
+                flashcardElement.classList.remove("shake");
+                restartGame();
+            }, 1000);
+        } else {
+            setTimeout(() => {
+                flashcardElement.classList.remove("shake");
+                showCard();
+            }, 1000);
+        }
+    }
+}
+
+// Mettre à jour le score actuel
+function updateScore(points) {
+    currentScore += points;
+    document.getElementById("score-value").textContent = currentScore;
+}
+
 // Relancer la série de questions depuis le début
 function restartGame() {
     currentCardIndex = 0;
@@ -271,13 +301,7 @@ function restartGame() {
     document.getElementById("score-value").textContent = currentScore;
     updateLives();
     resetCharacter();
-    showCard();
     alert("PARTIE TERMINÉE. NOUVELLE PARTIE COMMENCÉE!");
-}
-
-// Passer à la carte suivante
-function nextCard() {
-    currentCardIndex = (currentCardIndex + 1) % flashcards.length;
     showCard();
 }
 
@@ -289,9 +313,9 @@ function toggleAddFlashcard() {
 
 // Ajouter une flashcard
 async function addFlashcard() {
-    const contenu = document.getElementById("new-contenu").value;
-    const reponse = document.getElementById("new-reponse").value;
-    const categorie = document.getElementById("new-categorie").value;
+    const contenu = document.getElementById("new-contenu").value.trim();
+    const reponse = document.getElementById("new-reponse").value.trim();
+    const categorie = document.getElementById("new-categorie").value.trim();
 
     if (!contenu || !reponse) {
         alert("Veuillez remplir les champs 'Question' et 'Réponse' !");
@@ -315,17 +339,16 @@ async function addFlashcard() {
             throw new Error(`Erreur HTTP: ${response.status}`);
         }
         alert("Flashcard ajoutée avec succès !");
+        document.getElementById("new-contenu").value = "";
+        document.getElementById("new-reponse").value = "";
+        document.getElementById("new-categorie").value = "";
         await loadFlashcards(); // Recharge les flashcards
     } catch (error) {
         console.error("Erreur lors de l'ajout de la flashcard :", error);
         alert(`Erreur lors de l'ajout de la flashcard : ${error.message}.`);
     }
-
-    // Réinitialise le formulaire
-    document.getElementById("new-contenu").value = "";
-    document.getElementById("new-reponse").value = "";
-    document.getElementById("new-categorie").value = "";
 }
 
 // Charge les flashcards au démarrage
 loadFlashcards();
+
