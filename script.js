@@ -6,7 +6,6 @@ let flashcards = [];
 let currentCardIndex = 0;
 let currentUser = null;
 let currentScore = 0;
-let bestScores = JSON.parse(localStorage.getItem('bestScores')) || {};
 let characterPosition = 0;
 let lives = 3;
 
@@ -23,9 +22,9 @@ function setPseudo() {
     document.getElementById("score-value").textContent = currentScore;
     document.getElementById("login-form").style.display = "none";
     document.getElementById("game").style.display = "block";
-    updateScoreboard();
     updateLives();
     loadFlashcards();
+    loadScores();
     resetCharacter();
 }
 
@@ -36,48 +35,17 @@ function resetCharacter() {
     character.style.left = `${characterPosition}px`;
 }
 
-// Mettre à jour le scoreboard
-function updateScoreboard() {
-    const scoreList = document.getElementById("score-list");
-    scoreList.innerHTML = "";
-    for (const user in bestScores) {
-        const li = document.createElement("li");
-        li.textContent = `${user}: ${bestScores[user]}`;
-        scoreList.appendChild(li);
-    }
-}
-
-// Mettre à jour le score actuel
-function updateScore(points) {
-    currentScore += points;
-    document.getElementById("score-value").textContent = currentScore;
-}
-
 // Mettre à jour les vies
 function updateLives() {
     const livesElement = document.getElementById("lives");
     livesElement.textContent = "❤️".repeat(lives);
 }
 
-// Enregistrer le meilleur score
-function saveBestScore() {
-    if (!currentUser) return;
-    if (!bestScores[currentUser] || currentScore > bestScores[currentUser]) {
-        bestScores[currentUser] = currentScore;
-        localStorage.setItem('bestScores', JSON.stringify(bestScores));
-        updateScoreboard();
-    }
-}
-
-// Déplacer le personnage
-function moveCharacter(steps) {
-    const character = document.getElementById("character");
-    characterPosition += steps;
-    character.style.left = `${characterPosition}px`;
-    if (characterPosition > (window.innerWidth < 600 ? 150 : 200)) {
-        characterPosition = window.innerWidth < 600 ? 150 : 200;
-        character.style.left = `${characterPosition}px`;
-    }
+// Mettre à jour la barre de progression
+function updateProgressBar() {
+    const progressBar = document.getElementById("progress-bar");
+    const progress = ((currentCardIndex + 1) / flashcards.length) * 100;
+    progressBar.style.width = `${progress}%`;
 }
 
 // Afficher l'animation de gouttes de sang
@@ -98,11 +66,15 @@ function showBloodDrops() {
     }
 }
 
-// Mettre à jour la barre de progression
-function updateProgressBar() {
-    const progressBar = document.getElementById("progress-bar");
-    const progress = ((currentCardIndex + 1) / flashcards.length) * 100;
-    progressBar.style.width = `${progress}%`;
+// Déplacer le personnage
+function moveCharacter(steps) {
+    const character = document.getElementById("character");
+    characterPosition += steps;
+    character.style.left = `${characterPosition}px`;
+    if (characterPosition > (window.innerWidth < 600 ? 150 : 200)) {
+        characterPosition = window.innerWidth < 600 ? 150 : 200;
+        character.style.left = `${characterPosition}px`;
+    }
 }
 
 // Charge les flashcards depuis le script Google Apps
@@ -123,6 +95,61 @@ async function loadFlashcards() {
     } catch (error) {
         console.error("Erreur de chargement :", error);
         alert(`Erreur de chargement : ${error.message}.`);
+    }
+}
+
+// Charge les scores depuis le script Google Apps
+async function loadScores() {
+    try {
+        const response = await fetch(SHEET_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ action: "getScores" })
+        });
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        const scores = await response.json();
+        updateScoreboard(scores);
+    } catch (error) {
+        console.error("Erreur de chargement des scores :", error);
+    }
+}
+
+// Mettre à jour le scoreboard
+function updateScoreboard(scores) {
+    const scoreList = document.getElementById("score-list");
+    scoreList.innerHTML = "";
+    scores.sort((a, b) => b.Score - a.Score).forEach(score => {
+        const li = document.createElement("li");
+        li.textContent = `${score.User}: ${score.Score}`;
+        scoreList.appendChild(li);
+    });
+}
+
+// Enregistrer le score
+async function saveScore() {
+    if (!currentUser) return;
+    try {
+        const response = await fetch(SHEET_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: "saveScore",
+                user: currentUser,
+                score: currentScore
+            })
+        });
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        loadScores(); // Recharge les scores
+    } catch (error) {
+        console.error("Erreur lors de l'enregistrement du score :", error);
     }
 }
 
@@ -163,7 +190,7 @@ function checkAnswer() {
         lives--;
         updateLives();
         if (lives <= 0) {
-            saveBestScore();
+            saveScore(); // Enregistre le score
             setTimeout(() => {
                 flashcardElement.classList.remove("shake");
                 restartGame();
