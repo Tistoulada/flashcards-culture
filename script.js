@@ -1,5 +1,5 @@
 // Remplace cette URL par celle de ton script Google Apps
-const SHEET_URL = "TU_DOIS_REMPLACER_CE_TEXTE_PAR_TON_URL_DE_DEPLOIEMENT";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbxYAZVc228RG4qdinTR1Y6UZT9LLiHne00a6OEEvhWHO2K0TYus818EsosATpCfrlg8/exec";
 
 // Variables globales
 let flashcards = [];
