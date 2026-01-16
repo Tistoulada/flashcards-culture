@@ -15,7 +15,7 @@ let isLoading = false;
 // Fonction pour afficher les messages d'erreur de manière cohérente
 function showError(message) {
     console.error(message);
-    alert(`Erreur: ${message}\nVérifiez votre connexion internet et que le script Google Apps est correctement déployé.`);
+    alert(`Erreur: ${message}`);
 }
 
 // Définir le pseudo de l'utilisateur
@@ -96,7 +96,7 @@ function moveCharacter(steps) {
 async function fetchData(url, options = {}) {
     try {
         isLoading = true;
-        const response = await fetch(url, options);
+        const response = await fetch(url + (options.body ? '?action=getFlashcards' : ''), options);
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(`Erreur HTTP: ${response.status} - ${JSON.stringify(errorData)}`);
@@ -374,6 +374,7 @@ async function addFlashcard() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                action: "addFlashcard",
                 Type: "question",
                 "Contenu (Question)": contenu,
                 Réponse: reponse,
@@ -394,6 +395,3 @@ async function addFlashcard() {
 loadFlashcards();
 loadScores();
 
-// Charge les flashcards au démarrage
-loadFlashcards();
-loadScores();
