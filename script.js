@@ -393,3 +393,7 @@ async function addFlashcard() {
 // Charge les flashcards au démarrage
 loadFlashcards();
 loadScores();
+
+// Charge les flashcards au démarrage
+loadFlashcards();
+loadScores();
