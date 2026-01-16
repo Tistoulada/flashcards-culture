@@ -304,31 +304,3 @@ body {
         height: 10px;
     }
 }
-
-/* Sidebar pour le scoreboard */
-@media (min-width: 768px) {
-    .game-container {
-        flex-direction: row;
-    }
-
-    .sidebar {
-        width: 250px;
-        background-color: #000;
-        border: 2px solid #0f0;
-        padding: 10px;
-        margin-right: 20px;
-        height: fit-content;
-    }
-
-    .sidebar-title {
-        font-size: 14px;
-        color: #0ff;
-        border-bottom: 1px solid #0f0;
-        padding-bottom: 5px;
-        margin-bottom: 10px;
-    }
-
-    .main-content {
-        flex: 1;
-    }
-}
