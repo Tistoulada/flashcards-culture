@@ -1,4 +1,4 @@
-// Remplace cette URL par celle de ton script Google Apps
+// URL de votre script Google Apps
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbxYAZVc228RG4qdinTR1Y6UZT9LLiHne00a6OEEvhWHO2K0TYus818EsosATpCfrlg8/exec";
 
 // Variables globales
@@ -10,6 +10,13 @@ let characterPosition = 0;
 let lives = 3;
 let usedIndices = [];
 let consecutiveCorrectAnswers = 0;
+let isLoading = false;
+
+// Fonction pour afficher les messages d'erreur de manière cohérente
+function showError(message) {
+    console.error(message);
+    alert(`Erreur: ${message}\nVérifiez votre connexion internet et que le script Google Apps est correctement déployé.`);
+}
 
 // Définir le pseudo de l'utilisateur
 function setPseudo() {
@@ -48,8 +55,12 @@ function updateLives() {
 // Mettre à jour la barre de progression
 function updateProgressBar() {
     const progressBar = document.getElementById("progress-bar");
-    const progress = ((usedIndices.length) / flashcards.length) * 100;
-    progressBar.style.width = `${progress}%`;
+    if (flashcards.length > 0) {
+        const progress = ((usedIndices.length) / flashcards.length) * 100;
+        progressBar.style.width = `${progress}%`;
+    } else {
+        progressBar.style.width = `0%`;
+    }
 }
 
 // Afficher l'animation de gouttes de sang
@@ -81,14 +92,29 @@ function moveCharacter(steps) {
     }
 }
 
+// Fonction générique pour les requêtes fetch
+async function fetchData(url, options = {}) {
+    try {
+        isLoading = true;
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`Erreur HTTP: ${response.status} - ${JSON.stringify(errorData)}`);
+        }
+        const data = await response.json();
+        isLoading = false;
+        return data;
+    } catch (error) {
+        isLoading = false;
+        showError(error.message);
+        throw error;
+    }
+}
+
 // Charge les flashcards depuis le script Google Apps
 async function loadFlashcards() {
     try {
-        const response = await fetch(SHEET_URL);
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-        }
-        const data = await response.json();
+        const data = await fetchData(SHEET_URL);
         flashcards = data.map(item => ({
             type: item.Type,
             contenu: item["Contenu (Question)"],
@@ -97,29 +123,23 @@ async function loadFlashcards() {
         }));
         showCard();
     } catch (error) {
-        console.error("Erreur de chargement :", error);
-        alert(`Erreur de chargement : ${error.message}. Vérifie que l'URL du script est correcte et que le script est déployé.`);
+        console.error("Erreur de chargement des flashcards:", error);
     }
 }
 
 // Charge les scores depuis le script Google Apps
 async function loadScores() {
     try {
-        const response = await fetch(SHEET_URL, {
+        const scores = await fetchData(SHEET_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ action: "getScores" })
         });
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-        }
-        const scores = await response.json();
         updateScoreboard(scores);
     } catch (error) {
-        console.error("Erreur de chargement des scores :", error);
-        alert(`Erreur de chargement des scores : ${error.message}. Vérifie que l'URL du script est correcte et que le script est déployé.`);
+        console.error("Erreur de chargement des scores:", error);
     }
 }
 
@@ -144,7 +164,7 @@ function updateScoreboard(scores) {
 async function saveScore() {
     if (!currentUser) return;
     try {
-        const response = await fetch(SHEET_URL, {
+        await fetchData(SHEET_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -155,13 +175,9 @@ async function saveScore() {
                 score: currentScore
             })
         });
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-        }
         loadScores(); // Recharge les scores
     } catch (error) {
-        console.error("Erreur lors de l'enregistrement du score :", error);
-        alert(`Erreur lors de l'enregistrement du score : ${error.message}. Vérifie que l'URL du script est correcte et que le script est déployé.`);
+        console.error("Erreur lors de l'enregistrement du score:", error);
     }
 }
 
@@ -239,6 +255,11 @@ function levenshteinDistance(a, b) {
 
 // Vérifie la réponse
 function checkAnswer() {
+    if (isLoading) {
+        alert("Veuillez patienter, une opération est en cours...");
+        return;
+    }
+
     const userAnswer = document.getElementById("user-answer").value.trim();
     if (!userAnswer) {
         alert("Veuillez entrer une réponse.");
@@ -332,6 +353,11 @@ function toggleAddFlashcard() {
 
 // Ajouter une flashcard
 async function addFlashcard() {
+    if (isLoading) {
+        alert("Veuillez patienter, une opération est en cours...");
+        return;
+    }
+
     const contenu = document.getElementById("new-contenu").value.trim();
     const reponse = document.getElementById("new-reponse").value.trim();
     const categorie = document.getElementById("new-categorie").value.trim();
@@ -342,7 +368,7 @@ async function addFlashcard() {
     }
 
     try {
-        const response = await fetch(SHEET_URL, {
+        await fetchData(SHEET_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -354,18 +380,13 @@ async function addFlashcard() {
                 Catégorie: categorie
             })
         });
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(`Erreur HTTP: ${response.status} - ${JSON.stringify(errorData)}`);
-        }
         alert("Flashcard ajoutée avec succès !");
         document.getElementById("new-contenu").value = "";
         document.getElementById("new-reponse").value = "";
         document.getElementById("new-categorie").value = "";
         await loadFlashcards(); // Recharge les flashcards
     } catch (error) {
-        console.error("Erreur lors de l'ajout de la flashcard :", error);
-        alert(`Erreur lors de l'ajout de la flashcard : ${error.message}. Vérifie que l'URL du script est correcte et que le script est déployé.`);
+        console.error("Erreur lors de l'ajout de la flashcard:", error);
     }
 }
 
