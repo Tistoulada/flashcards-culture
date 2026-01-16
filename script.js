@@ -1,5 +1,5 @@
 // Remplace cette URL par celle de ton script Google Apps
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbxYAZVc228RG4qdinTR1Y6UZT9LLiHne00a6OEEvhWHO2K0TYus818EsosATpCfrlg8/exec";
+const SHEET_URL = "TU_DOIS_REMPLACER_CE_TEXTE_PAR_TON_URL_DE_DEPLOIEMENT";
 
 // Variables globales
 let flashcards = [];
@@ -98,7 +98,7 @@ async function loadFlashcards() {
         showCard();
     } catch (error) {
         console.error("Erreur de chargement :", error);
-        alert(`Erreur de chargement : ${error.message}.`);
+        alert(`Erreur de chargement : ${error.message}. Vérifie que l'URL du script est correcte et que le script est déployé.`);
     }
 }
 
@@ -119,6 +119,7 @@ async function loadScores() {
         updateScoreboard(scores);
     } catch (error) {
         console.error("Erreur de chargement des scores :", error);
+        alert(`Erreur de chargement des scores : ${error.message}. Vérifie que l'URL du script est correcte et que le script est déployé.`);
     }
 }
 
@@ -132,6 +133,10 @@ function updateScoreboard(scores) {
             li.textContent = `${score.User}: ${score.Score}`;
             scoreList.appendChild(li);
         });
+    } else {
+        const li = document.createElement("li");
+        li.textContent = "Aucun score enregistré";
+        scoreList.appendChild(li);
     }
 }
 
@@ -156,6 +161,7 @@ async function saveScore() {
         loadScores(); // Recharge les scores
     } catch (error) {
         console.error("Erreur lors de l'enregistrement du score :", error);
+        alert(`Erreur lors de l'enregistrement du score : ${error.message}. Vérifie que l'URL du script est correcte et que le script est déployé.`);
     }
 }
 
@@ -365,3 +371,4 @@ async function addFlashcard() {
 
 // Charge les flashcards au démarrage
 loadFlashcards();
+loadScores();
