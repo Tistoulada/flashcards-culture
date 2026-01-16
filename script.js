@@ -1,5 +1,4 @@
-const SHEET_URL = "TON_URL_GOOGLE_SCRIPT";
-
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbyfyE6GGFaP0P59B3Cgtyu-ECspliyXV2rQH368O_X7-O61jy3pZzIZiQ213y8Cequa/exec";
 let flashcards = [];
 let currentIndex = 0;
 let currentUser = "";
