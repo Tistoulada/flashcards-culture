@@ -2,50 +2,48 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FLASHCARDS // ARCADE</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
-<body>
 
+<body>
 <div class="container">
+
     <div class="header">
         <h1>FLASHCARDS ARCADE</h1>
         <div class="score">SCORE: <span id="score-value">0</span></div>
     </div>
 
     <div class="character-container">
-        <div id="character" class="character">🤺</div>
+        <div id="character" class="character">🏰</div>
     </div>
 
     <div class="lives-container">
         <div class="prompt">VIES:</div>
-        <div id="lives">❤️❤️❤️</div>
+        <div id="lives" class="lives">❤️❤️❤️</div>
     </div>
 
     <div id="login-form">
-        <div class="prompt">PSEUDO :</div>
-        <input id="pseudo-input" class="input" maxlength="8">
-        <button class="button" onclick="setPseudo()">START</button>
-
-        <button class="button danger" onclick="startSuddenDeath()">MORT SUBITE</button>
+        <div class="prompt">ENTREZ VOTRE PSEUDO:</div>
+        <input type="text" id="pseudo-input" class="input">
+        <button onclick="setPseudo()" class="button">COMMENCER</button>
     </div>
 
     <div id="game" style="display:none">
         <div class="scoreboard-container">
-            <div class="prompt">SCOREBOARD</div>
+            <div class="prompt">SCOREBOARD:</div>
             <ul id="score-list"></ul>
         </div>
 
         <div class="flashcard">
             <div id="flashcard-question" class="question"></div>
-            <input id="user-answer" class="input">
-            <button class="button" onclick="checkAnswer()">VALIDER</button>
+            <input type="text" id="user-answer" class="input" placeholder="VOTRE RÉPONSE">
+            <button onclick="checkAnswer()" class="button">VALIDER</button>
         </div>
-
-        <div id="combo" class="combo"></div>
-        <div id="highscore-banner" class="highscore">NEW HIGH SCORE!</div>
     </div>
+
 </div>
 
 <script src="script.js"></script>
